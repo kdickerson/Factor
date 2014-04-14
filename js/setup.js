@@ -7,11 +7,11 @@ function run(tickFunction) {
 		if (running) {
 			tickFunction(timestamp - last);
 			last = timestamp;
-			cancelID = requestAnimationFrame(step);
+			requestAnimationFrame(step);
 		}
 	}
 	running = true;
-	cancelID = requestAnimationFrame(step); // start the first frame
+	requestAnimationFrame(step); // start the first frame
 }
 
 function stop() {running = false;}
