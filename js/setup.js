@@ -8,10 +8,10 @@ var game = (function() {
 	var tickFunction = null;
 	
 	return {
-		init: function(tickFxn) {tickFunction = tickFxn;},
+		setTickFunction: function(tickFxn) {tickFunction = tickFxn;},
 		
 		run: function() {
-			if (typeof tickFunction !== "function") {console.log("No tickFunction set.  Use 'init' to set a tickFunction before calling 'run'."); return false;}
+			if (typeof tickFunction !== "function") {console.log("No tickFunction set.  Use 'setTickFunction' before calling 'run'."); return false;}
 			var last = performance.now();
 			function step(timestamp) {
 				if (running) {
@@ -38,7 +38,7 @@ function testRunner(pixelsPerSecond) {
 	var w = testDiv.style.width = 0;
 	document.getElementsByTagName('body')[0].appendChild(testDiv);
 	
-	game.init(function(delta) {
+	game.setTickFunction(function(delta) {
 		var widthDelta = (delta / 1000) * pixelsPerSecond;
 		w += widthDelta;
 		testDiv.style.width = w + 'px';
