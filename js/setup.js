@@ -6,9 +6,20 @@ var game = (function() {
 	"use strict";
 	var running = false;
 	var tickFunction = null;
+	var keyDownHandlers = null;
+	
+	var keyDown = function(event) {
+		if (typeof keyDownHandlers === "function") {keyDownHandlers(event.keyCode, running);}
+		else if (keyDownHandlers[event.keyCode]) {keyDownHandlers[event.keyCode](running);}
+	};
+	document.getElementsByTagName('body')[0].onkeydown = keyDown;
 	
 	return {
 		setTickFunction: function(tickFxn) {tickFunction = tickFxn;},
+		
+		// keyHandlers can be a function, which will be passed the event keyCode and "running"
+		//   or it can be an object with keyCodes as keys.  The value of the keys should be functions that will be passed "running"
+		setKeyDownHandlers: function(handlers) {keyDownHandlers = handlers;},
 		
 		run: function() {
 			if (typeof tickFunction !== "function") {console.log("No tickFunction set.  Use 'setTickFunction' before calling 'run'."); return false;}
@@ -43,6 +54,10 @@ function testRunner(pixelsPerSecond) {
 		w += widthDelta;
 		testDiv.style.width = w + 'px';
 		if (w > 500) {game.stop();}
+	});
+	
+	game.setKeyDownHandlers(function(keyCode, running) {
+		testDiv.innerHTML = "" + keyCode + ' - ' + running;
 	});
 	
 	game.run();
