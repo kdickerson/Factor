@@ -1,34 +1,51 @@
 // General setup and convenience functions
 
-var running = false;
-function run(tickFunction) {
-	var last = performance.now();
-	function step(timestamp) {
-		if (running) {
-			tickFunction(timestamp - last);
-			last = timestamp;
-			requestAnimationFrame(step);
-		}
-	}
-	running = true;
-	requestAnimationFrame(step); // start the first frame
-}
+if (!window.console) {console = {log: function() {}};} // Create a dummy logger if necessary to prevent errors
 
-function stop() {running = false;}
-
-
+var game = (function() {
+	"use strict";
+	var running = false;
+	var tickFunction = null;
+	
+	return {
+		init: function(tickFxn) {tickFunction = tickFxn;},
+		
+		run: function() {
+			if (typeof tickFunction !== "function") {console.log("No tickFunction set.  Use 'init' to set a tickFunction before calling 'run'."); return false;}
+			var last = performance.now();
+			function step(timestamp) {
+				if (running) {
+					tickFunction(timestamp - last);
+					last = timestamp;
+					requestAnimationFrame(step);
+				}
+			}
+			running = true;
+			requestAnimationFrame(step); // start the first frame
+			return true;
+		},
+		
+		stop: function() {running = false;}
+	};
+})();
 
 
 function testRunner(pixelsPerSecond) {
-	var testDiv = document.getElementById('testDiv');
+	"use strict";
+	var testDiv = document.createElement('div');
+	testDiv.style.backgroundColor = "#00a";
+	testDiv.style.height = "100px";
 	var w = testDiv.style.width = 0;
+	document.getElementsByTagName('body')[0].appendChild(testDiv);
 	
-	run(function(delta) {
+	game.init(function(delta) {
 		var widthDelta = (delta / 1000) * pixelsPerSecond;
 		w += widthDelta;
 		testDiv.style.width = w + 'px';
-		if (w > 500) {stop();}
+		if (w > 500) {game.stop();}
 	});
+	
+	game.run();
 }
-testRunner(15);
+testRunner(35);
 
