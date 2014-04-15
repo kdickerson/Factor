@@ -2,6 +2,8 @@
 
 if (!window.console) {console = {log: function() {}};} // Create a dummy logger if necessary to prevent errors
 
+var KEYS = { ESC: 27, SPACE: 32, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 };
+
 var game = (function() {
 	"use strict";
 	var running = false;
@@ -56,9 +58,20 @@ function testRunner(pixelsPerSecond) {
 		if (w > 500) {game.stop();}
 	});
 	
-	game.setKeyDownHandlers(function(keyCode, running) {
+	// Example using single handler:
+	/*game.setKeyDownHandlers(function(keyCode, running) {
 		testDiv.innerHTML = "" + keyCode + ' - ' + running;
-	});
+	});*/
+	
+	// Example using separate handlers:
+	var handlers = {};
+	handlers[KEYS.DOWN] = function(running) {testDiv.innerHTML = "Down - " + running};
+	handlers[KEYS.UP] = function(running) {testDiv.innerHTML = "Up - " + running};
+	handlers[KEYS.LEFT] = function(running) {testDiv.innerHTML = "Left - " + running};
+	handlers[KEYS.RIGHT] = function(running) {testDiv.innerHTML = "Right - " + running};
+	handlers[KEYS.SPACE] = function(running) {testDiv.innerHTML = "Space - " + running};
+	handlers[KEYS.ESC] = function(running) {testDiv.innerHTML = "Esc - " + running};
+	game.setKeyDownHandlers(handlers);
 	
 	game.run();
 }
