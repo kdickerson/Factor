@@ -45,34 +45,53 @@ var game = (function() {
 
 function testRunner(pixelsPerSecond) {
 	"use strict";
-	var testDiv = document.createElement('div');
-	testDiv.style.backgroundColor = "#00a";
-	testDiv.style.height = "100px";
-	var w = testDiv.style.width = 0;
-	document.getElementsByTagName('body')[0].appendChild(testDiv);
+	var canvas = null;
+	var context = null;
+	var accumulator = 0;
+	var MAX = 0;
+	var widthOverMax = 0;
+	var heightOverMax = 0;
+	var pendingActions = [];
+	var lastAction = '';
+	function createCourt() {
+		canvas = document.createElement('canvas');
+		canvas.style.width = "500px";
+		canvas.style.height = "500px";
+		canvas.style.marginLeft = "auto";
+		canvas.style.marginRight = "auto";
+		canvas.style.display = "block";
+		canvas.style.border = "1px solid #ddd";
+		document.getElementsByTagName("body")[0].appendChild(canvas);
+		context = canvas.getContext("2d");
+		context.font = "30px Arial";
+		context.fillStyle = "#0000AA";
+		
+		MAX = Math.max(canvas.width, canvas.height) / pixelsPerSecond * 1000;
+		widthOverMax = canvas.width / MAX;
+		heightOverMax = canvas.height / MAX;
+	};
+	
+	function drawCourt() {
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.fillRect(0, 0, accumulator * widthOverMax, accumulator * heightOverMax);
+		if (pendingActions.length > 0) {lastAction = pendingActions.shift();}
+		context.fillStyle = "#000000";
+		context.fillText("" + lastAction, 10, 50);
+		context.fillStyle = "#0000AA";
+	};
 	
 	game.setTickFunction(function(delta) {
-		var widthDelta = (delta / 1000) * pixelsPerSecond;
-		w += widthDelta;
-		testDiv.style.width = w + 'px';
-		if (w > 500) {game.stop();}
+		accumulator += delta;
+		drawCourt();
+		if (accumulator > MAX) {game.stop();}
 	});
 	
 	// Example using single handler:
-	/*game.setKeyDownHandlers(function(keyCode, running) {
-		testDiv.innerHTML = "" + keyCode + ' - ' + running;
-	});*/
+	game.setKeyDownHandlers(function(keyCode, running) {
+		if (running) {pendingActions.push(keyCode);}
+	});
 	
-	// Example using separate handlers:
-	var handlers = {};
-	handlers[KEYS.DOWN] = function(running) {testDiv.innerHTML = "Down - " + running};
-	handlers[KEYS.UP] = function(running) {testDiv.innerHTML = "Up - " + running};
-	handlers[KEYS.LEFT] = function(running) {testDiv.innerHTML = "Left - " + running};
-	handlers[KEYS.RIGHT] = function(running) {testDiv.innerHTML = "Right - " + running};
-	handlers[KEYS.SPACE] = function(running) {testDiv.innerHTML = "Space - " + running};
-	handlers[KEYS.ESC] = function(running) {testDiv.innerHTML = "Esc - " + running};
-	game.setKeyDownHandlers(handlers);
-	
+	createCourt();
 	game.run();
 }
 testRunner(35);
